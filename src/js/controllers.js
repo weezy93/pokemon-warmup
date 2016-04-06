@@ -1,37 +1,38 @@
-app.controller('myController', ['$scope', '$http', '$location', function($scope, $http, $location) {
-
-  $scope.greeting = "Hello World!";
-  $scope.pokemon = {id: 0, name: '', move: '', image: ''};
-  $scope.generatePokemon = false;
+app.controller('myController', ['$scope', '$http', '$location', 'PokemonService', function($scope, $http, $location, PokemonService) {
+  $scope.pokemon = {name: '', image: ''};
   $scope.action = {};
+  $scope.loadingName = true;
+  $scope.loadingMove = true;
 
 
-  $scope.action.getPokemon = function () {
-    $scope.generatePokemon = true;
-    // var pokemon = Math.floor(Math.random() * 721) + 1;
-    // var url = 'http://pokeapi.co/api/v2/pokemon/';
-     // $http({
-    //   method: 'GET',
-    //   url: 'url' + pokemon
-    // })
-    // .then(function(result) {
-    //   console.log(result);
-    //   $scope.pokemon.id = result.id;
-    //   $scope.pokemon.name = result.name;
-    // });
+  PokemonService.generatePokemon().then(function (result) {
+    console.log('data', result.data);
+    $scope.pokemon.name = result.data.name;
+    $scope.pokemon.image = result.data.sprites.front_default;
+    $scope.loadingName = false;
+  });
 
+  PokemonService.generateMove().then(function (result) {
+    $scope.move = result.data.names[0].name;
+    $scope.loadingMove = false;
+  });
+
+}])
+.service('PokemonService', ['$http', function ($http) {
+  return {
+    generatePokemon: function () {
+      var random = Math.floor(Math.random() * 720) +1;
+      return $http({
+        url: 'http://pokeapi.co/api/v2/pokemon/' + random + '/',
+        method: 'GET'
+      });
+    },
+    generateMove: function () {
+      var random = Math.floor(Math.random() * 639) + 1;
+      return $http({
+        url: 'http://pokeapi.co/api/v2/move/' + random + '/',
+        method: 'GET'
+      });
+    }
   };
-
-  $scope.action.getMove = function () {
-  //   var url = 'http://pokeapi.co/api/v2/move/';
-  //   var move = Math.fllor(Math.random() * 630) + 1;
-  //   $http({
-  //     method: 'GET',
-  //     url: 'url' + move
-  //   })
-  //   .then(function(result) {
-  //     console.log(result);
-  //   });
-  };
-
 }]);
